@@ -37,7 +37,7 @@ This changeover sequence prevents immediate reversal of the motor's rotation dir
 ### Digital Inputs
 
 | Address | Description |
-|---|---|
+| ------- | ----------- |
 | I0.0 | Start Right (Clockwise) |
 | I0.1 | Start Left (Counter-Clockwise) |
 | I0.2 | Stop |
@@ -47,14 +47,14 @@ This changeover sequence prevents immediate reversal of the motor's rotation dir
 ### Digital Outputs
 
 | Address | Description |
-|---|---|
+| ------- | ----------- |
 | Q0.0 | Right Rotation Output (R_Out) |
 | Q0.1 | Left Rotation Output (L_Out) |
 
 ## Timer Configuration
 
 | Timer | Timer Function | Purpose | Preset Time |
-|---|---|---|---|
+| ----- | -------------- | ------- | ----------- |
 | T0 | S_PEXT | Direction changeover delay | 15 seconds |
 
 The timer is activated when a request is made to change the motor's rotation direction while the opposite direction output is active.
