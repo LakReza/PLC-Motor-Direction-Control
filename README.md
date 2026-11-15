@@ -1,75 +1,86 @@
+
 # PLC Motor Direction Control – 15-Second Changeover Delay
 
 ## Project Overview
 
-This project implements a motor direction control system using a Siemens S7-300 PLC and Ladder Logic (LAD).
+This project demonstrates a motor direction control system implemented using a Siemens S7-300 PLC and Ladder Logic (LAD).
 
-The system allows a motor to operate in either clockwise (right) or counter-clockwise (left) direction. It also includes a 15-second stopping interval when changing the motor's rotation direction.
+The system controls a motor in two operating directions:
+- Clockwise (Right Rotation)
+- Counter-Clockwise (Left Rotation)
 
-The control logic is developed using **SIMATIC Manager (STEP 7 V5.7)** and organized into three networks within OB1.
+A 15-second changeover delay is implemented to ensure that the motor stops before switching to the opposite direction.
+
+The PLC program is developed in SIMATIC Manager (STEP 7 V5.7) and organized into three networks within Organization Block OB1.
 
 ## Process Description
 
 ![Motor Direction Control Process Diagram](Process-Diagram/Motor-Direction-Control-Process.png)
 
-### Clockwise (Right) Operation
+### 1. Clockwise (Right) Operation
 
-1. Activating the right-direction Start command (I0.0) starts the motor in the clockwise direction.
-2. Output Q0.0 is activated to control right-direction operation.
-3. The motor continues running until a stop or direction-change command is applied.
+- Activating the Right Start pushbutton (I0.0) requests clockwise motor operation.
+- Output Q0.0 (R_Out) controls the right rotation.
+- The motor operates in this direction according to the implemented control logic.
 
-### Counter-Clockwise (Left) Operation
+### 2. Counter-Clockwise (Left) Operation
 
-1. Activating the left-direction Start command (I0.1) starts the motor in the counter-clockwise direction.
-2. Output Q0.1 is activated to control left-direction operation.
-3. The motor continues running until a stop or direction-change command is applied.
+- Activating the Left Start pushbutton (I0.1) requests counter-clockwise motor operation.
+- Output Q0.1 (L_Out) controls the left rotation.
+- The motor operates in this direction according to the implemented control logic.
 
-### Direction Changeover Sequence
+### 3. Direction Changeover Sequence
 
-1. When a change to the opposite direction is requested, the motor stops.
-2. A 15-second delay is initiated using timer T0.
-3. After the delay, the motor can start operating in the newly selected direction.
+When a command to change the motor's rotation direction is received:
 
-This changeover sequence prevents immediate reversal of the motor's rotation direction.
+1. The currently active direction is stopped.
+2. Timer T0 initiates the 15-second changeover delay.
+3. After the delay, the requested opposite direction can be activated according to the control logic.
+
+This sequence introduces a stopping interval between opposite rotation commands.
 
 ## I/O Assignment
 
 ### Digital Inputs
 
-| Address | Description |
-| ------- | ----------- |
-| I0.0 | Start Right (Clockwise) |
-| I0.1 | Start Left (Counter-Clockwise) |
-| I0.2 | Stop |
+| Address | Symbol | Description |
+| ------- | ------ | ----------- |
+| I0.0 | Start_R | Start Right (Clockwise) |
+| I0.1 | Start_L | Start Left (Counter-Clockwise) |
+| I0.2 | Stop | Motor Stop |
 
-**Important Note:** The Stop pushbutton is designed using a Normally Closed (NC) contact to reflect industrial control wiring practice. Its initial logical input value is set to 1.
+**Input Configuration Note:** The Stop pushbutton uses a Normally Closed (NC) contact. Its initial logical input value is set to 1.
 
 ### Digital Outputs
 
-| Address | Description |
-| ------- | ----------- |
-| Q0.0 | Right Rotation Output (R_Out) |
-| Q0.1 | Left Rotation Output (L_Out) |
+| Address | Symbol | Description |
+| ------- | ------ | ----------- |
+| Q0.0 | R_Out | Right Rotation Output |
+| Q0.1 | L_Out | Left Rotation Output |
 
 ## Timer Configuration
 
 | Timer | Timer Function | Purpose | Preset Time |
 | ----- | -------------- | ------- | ----------- |
-| T0 | S_PEXT | Direction changeover delay | 15 seconds |
+| T0 | S_PEXT | Direction Changeover Delay | 15 seconds |
 
-The timer is activated when a request is made to change the motor's rotation direction while the opposite direction output is active.
+Timer T0 is configured using the S_PEXT timer function with a preset time of S5T#15S.
 
-## Ladder Logic (LAD) Networks
+It is used in the direction changeover logic to provide the required stopping interval before the opposite direction is activated.
 
-The main PLC control program is organized into three networks within OB1.
+## Control Program Structure
 
-- **Network 1:** Start and control of clockwise motor rotation.
-- **Network 2:** Start and control of counter-clockwise motor rotation.
-- **Network 3:** Timer configuration and 15-second direction changeover delay.
+The main PLC program is implemented in OB1 and consists of three Ladder Logic networks.
+
+| Network | Function |
+| ------- | -------- |
+| Network 1 | Clockwise motor control |
+| Network 2 | Counter-clockwise motor control |
+| Network 3 | Timer configuration and direction changeover delay |
 
 ## Program Screenshots
 
-The following screenshots show the Ladder Logic networks implemented in OB1.
+The following screenshots illustrate the Ladder Logic implementation in SIMATIC Manager.
 
 ### Network 1 – Clockwise Motor Control
 
@@ -85,9 +96,22 @@ The following screenshots show the Ladder Logic networks implemented in OB1.
 
 ## Simulation Demo
 
-The following GIF demonstrates the motor direction control sequence and the 15-second changeover delay in the simulation environment.
+The following GIF demonstrates the motor direction control operation and the 15-second changeover delay in the simulation environment.
 
 ![PLC Simulation Demo](GIFs/PLC-Simulation.gif)
+
+## Test Scenarios
+
+The following operating scenarios are used to evaluate the control logic in the simulation environment.
+
+| Test | Operating Scenario | Expected Behavior |
+| ---- | ------------------ | ----------------- |
+| 1 | Right Start command (I0.0) | Right rotation is requested |
+| 2 | Left Start command (I0.1) | Left rotation is requested |
+| 3 | Direction change request | A 15-second changeover interval is applied |
+| 4 | Stop command (I0.2) | Motor stop control is activated |
+
+All test scenarios were evaluated in the PLC simulation environment.
 
 ## Software and Hardware
 
@@ -96,29 +120,33 @@ The following GIF demonstrates the motor direction control sequence and the 15-s
 - **Programming Software:** SIMATIC Manager – STEP 7 V5.7
 - **Programming Language:** Ladder Logic (LAD)
 - **Program Block:** OB1
+- **Timer:** T0 – S_PEXT
 - **Testing Environment:** PLC Simulation
 
 ## Project Files
 
-- [PLC Program (PDF)](Documentation/PLC_Program.pdf)
-- `Process-Diagram/` – Motor direction control process illustration.
+- `README.md` – Project overview and technical documentation.
+- `Documentation/PLC_Program.pdf` – PLC program documentation.
+- `Process-Diagram/` – Motor direction control process diagram.
 - `Screenshots/` – Ladder Logic network screenshots.
 - `GIFs/` – PLC simulation demonstration.
 
 ## Learning Objectives
 
-- Implementing motor clockwise and counter-clockwise control using PLC.
-- Developing direction selection logic using Ladder Logic.
+- Implementing bidirectional motor control using a Siemens S7-300 PLC.
+- Developing clockwise and counter-clockwise control logic.
 - Applying timed direction changeover sequences.
-- Using Siemens S7-300 PLC timers.
-- Implementing stop control with NC input logic.
-- Organizing PLC programs into multiple networks.
-- Testing motor control sequences through simulation.
+- Configuring PLC timers using STEP 7.
+- Understanding NC pushbutton input logic.
+- Organizing PLC programs into multiple Ladder Logic networks.
+- Testing control sequences through PLC simulation.
 
 ## Project Status
 
-Implemented and tested in a simulation environment.
+**Status:** Completed and tested in a simulation environment.
+
+The project demonstrates the implementation of bidirectional motor control with a timed direction changeover sequence using Siemens S7-300 PLC technology.
 
 ---
 
-*This project is an educational simulation. Practical implementation with a real motor requires appropriate electrical and mechanical interlocking, overload protection, safety circuits, and engineering validation.*
+*Disclaimer: This project is developed for educational and simulation purposes. Practical implementation with a real motor requires appropriate electrical and mechanical interlocking, overload protection, emergency stop circuits, and proper engineering validation.*
